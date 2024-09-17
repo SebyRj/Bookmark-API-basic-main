@@ -156,7 +156,7 @@
           console.log(jsonObject);
           $.ajax({
             type: "POST",
-            url: "https://kbg-serverapi.glitch.me/api/bounces",
+            url: "https://fir-rigorous-clove.glitch.me",
             data: JSON.stringify(jsonObject),
             success: (data) => {
               $("#formDataContainer").html(JSON.stringify(data));
