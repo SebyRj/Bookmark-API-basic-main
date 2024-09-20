@@ -8,6 +8,10 @@ function Init_UI() {
         saveContentScrollPosition();
         renderCreateContactForm();
     });
+    $('#createBookmark').on("click", async function () {
+        saveContentScrollPosition();
+        renderCreateBookmarkForm();
+    });
     $('#abort').on("click", async function () {
         renderContacts();
     });
@@ -19,20 +23,19 @@ function Init_UI() {
 function renderAbout() {
     saveContentScrollPosition();
     eraseContent();
-    $("#createContact").hide();
+    $("#createBookmark").hide();
     $("#abort").show();
     $("#actionTitle").text("À propos...");
     $("#content").append(
         $(`
             <div class="aboutContainer">
-                <h2>Gestionnaire de contacts</h2>
+                <h2>Gestionnaire de favpris</h2>
                 <hr>
                 <p>
-                    Petite application de gestion de contacts à titre de démonstration
-                    d'interface utilisateur monopage réactive.
+                    application de gestion de favori
                 </p>
                 <p>
-                    Auteur: Nicolas Chourot
+                    Auteur: Rick Sébastien Julien
                 </p>
                 <p>
                     Collège Lionel-Groulx, automne 2024
@@ -81,14 +84,14 @@ function restoreContentScrollPosition() {
 }
 function renderError(message) {
     eraseContent();
-    $("#content").append(
+    $("#content").append( 
         $(`
             <div class="errorContainer">
                 ${message}
             </div>
         `)
     );
-}
+}3
 function renderCreateContactForm() {
     renderContactForm();
 }
@@ -236,6 +239,107 @@ function renderContact(contact) {
             <div class="contactCommandPanel">
                 <span class="editCmd cmdIcon fa fa-pencil" editContactId="${contact.Id}" title="Modifier ${contact.Name}"></span>
                 <span class="deleteCmd cmdIcon fa fa-trash" deleteContactId="${contact.Id}" title="Effacer ${contact.Name}"></span>
+            </div>
+        </div>
+    </div>           
+    `);
+}
+function newBookmark() {
+    bookmark = {};
+    bookmark.Id = 0;
+    bookmark.Title = "";
+    bookmark.Url = "";
+    bookmark.Category = "";
+    return bookmark;
+}
+async function renderBookMarks() {
+    showWaitingGif();
+    $("#actionTitle").text("Liste des favoris");
+    $("#createBookmark").show();
+    $("#abort").hide();
+    let bookmarks = await API_GetBookMarks();
+    eraseContent();
+    if (bookmarks !== null) {
+        bookmarks.forEach(bookmark => {
+            $("#content").append(renderBookMark(bookmark));
+        });
+        restoreContentScrollPosition();
+        // Attached click events on command icons
+        $(".editCmd").on("click", function () {
+            saveContentScrollPosition();
+            renderEditContactForm(parseInt($(this).attr("editBookmarkId")));
+        });
+        $(".deleteCmd").on("click", function () {
+            saveContentScrollPosition();
+            renderDeleteBookmarkForm(parseInt($(this).attr("deleteBookmarkId")));
+        });
+        $(".bookmarkRow").on("click", function (e) { e.preventDefault(); })
+    } else {
+        renderError("Service introuvable");
+    }
+}
+function renderCreateBookmarkForm() {
+    renderBookmarkForm();
+}
+async function renderEditBookmarkForm(id) {
+    showWaitingGif();
+    let bookmark = await API_GetBookMark(id);
+    if (bookmark !== null)
+        renderBookmarkForm(bookmark);
+    else
+        renderError("Favori introuvable!");
+}
+async function renderDeleteBookmarkForm(id) {
+    showWaitingGif();
+    $("#createBookmark").hide();
+    $("#abort").show();
+    $("#actionTitle").text("Retrait");
+    let bookmark = await API_GetBookMark(id);
+    eraseContent();
+    if (bookmark !== null) {
+        $("#content").append(`
+        <div class="contactdeleteForm">
+            <h4>Effacer le favori suivant?</h4>
+            <br>
+            <div class="contactRow" contact_id=${bookmark.Id}">
+                <div class="contactContainer">
+                    <div class="bookmarkLayout">
+                        <div class="contactName">${bookmark.Title}</div>
+                        <div class="contactPhone">${bookmark.Category}</div>
+                    </div>
+                </div>  
+            </div>   
+            <br>
+            <input type="button" value="Effacer" id="deleteBookmark" class="btn btn-primary">
+            <input type="button" value="Annuler" id="cancel" class="btn btn-secondary">
+        </div>    
+        `);
+        $('#deleteBookmark').on("click", async function () {
+            showWaitingGif();
+            let result = await API_DeleteBookmark(contact.Id);
+            if (result)
+                renderBookMarks();
+            else
+                renderError("Une erreur est survenue!");
+        });
+        $('#cancel').on("click", function () {
+            renderBookMarks();
+        });
+    } else {
+        renderError("Favori introuvable!");
+    }
+}
+function renderBookMark(bookmark) {
+    return $(`
+     <div class="contactRow" contact_id=${bookmark.Id}">
+        <div class="contactContainer noselect">
+            <div class="contactLayout">
+                <span class="contactName">${bookmark.Title}</span>
+                <span class="contactPhone">${bookmark.Category}</span>
+            </div>
+            <div class="contactCommandPanel">
+                <span class="editCmd cmdIcon fa fa-pencil" editBookmarkId="${bookmark.Id}" title="Modifier ${bookmark.Title}"></span>
+                <span class="deleteCmd cmdIcon fa fa-trash" deleteBookmarkId="${bookmark.Id}" title="Effacer ${bookmark.Title}"></span>
             </div>
         </div>
     </div>           

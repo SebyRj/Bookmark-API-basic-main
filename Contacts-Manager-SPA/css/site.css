@@ -194,3 +194,10 @@ a {
     text-decoration: none !important;
     color: white !important;
 }
+.bookmarkLayout{
+    display: grid;
+    grid-template-columns: 1fr;
+    padding: 10px;
+    gap: 8px;
+    align-items: center;
+}
