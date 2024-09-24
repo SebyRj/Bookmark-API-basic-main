@@ -1,6 +1,6 @@
-const API_URL = "https://kbg-labo-1-rick.glitch.me/api/bookmarks";
+const API_URL = "http://localhost:5000/api/bookmarks";
 
-function API_GetBookMarks() {
+function API_GetBookmarks() {
     return new Promise(resolve => {
         $.ajax({
             url: API_URL,
@@ -9,7 +9,7 @@ function API_GetBookMarks() {
         });
     });
 }
-function API_GetBookMark(bookmarkId) {
+function API_GetBookmark(bookmarkId) {
     return new Promise(resolve => {
         $.ajax({
             url: API_URL + "/" + bookmarkId,

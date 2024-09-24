@@ -176,7 +176,7 @@ async function handleBookmarkServiceRequest(req, res) {
     if (req.url.includes("/api/bookmarks")) {
         const bookmarksFilePath = "./bookmarks.json";
         let bookmarksJSON = fs.readFileSync(bookmarksFilePath);
-        let bookmarks = JSON.parse();
+        let bookmarks = JSON.parse(bookmarksJSON);
         let validStatus = '';
         let id = extract_Id_From_Request(req);
         switch (req.method) {
@@ -210,7 +210,7 @@ async function handleBookmarkServiceRequest(req, res) {
                             maxId = bookmark.Id;
                     });
                     newBookmark.Id = maxId + 1;
-                    bookmark.push(newBookmark);
+                    bookmarks.push(newBookmark);
                     fs.writeFileSync(bookmarksFilePath, JSON.stringify(bookmarks));
                     res.writeHead(201, { 'content-type': 'application/json' });
                     res.end(JSON.stringify(newBookmark));
@@ -234,10 +234,10 @@ async function handleBookmarkServiceRequest(req, res) {
                                 }
                             }
                             if (storedBookmark != null) {
-                                storedBookmark.Name = modifiedBookmark.Name;
-                                storedBookmark.Phone = modifiedBookmark.Phone;
-                                storedBookmark.Email = modifiedBookmark.Email;
-                                fs.writeFileSync(contactsFilePath, JSON.stringify(bookmarks));
+                                storedBookmark.Title = modifiedBookmark.Title;
+                                storedBookmark.Url = modifiedBookmark.Url;
+                                storedBookmark.Category = modifiedBookmark.Category;
+                                fs.writeFileSync(bookmarksFilePath, JSON.stringify(bookmarks));
                                 res.writeHead(200);
                                 res.end();
                             } else {
@@ -262,9 +262,10 @@ async function handleBookmarkServiceRequest(req, res) {
                     let index = 0;
                     let oneDeleted = false;
                     for (let bookmark of bookmarks) {
+                        console.log(`Comparing bookmark Id: ${bookmark.Id} with provided id: ${id}`);
                         if (bookmark.Id === id) {
                             bookmarks.splice(index, 1);
-                            fs.writeFileSync(bookmarksFilePath, JSON.stringify(bookmark));
+                            fs.writeFileSync(bookmarksFilePath, JSON.stringify(bookmarks));
                             oneDeleted = true;
                             break;
                         }
